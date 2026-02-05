@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard | ZYPSO Mart</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-container { padding: 15px; max-width: 900px; margin: 0 auto; background: #f1f5f9; min-height: 100vh; }
+        .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; font-size: 12px; }
+        .stat-box { background: var(--primary); color: white; padding: 15px; border-radius: 12px; text-align: center; }
+        input, select { padding: 8px; margin-bottom: 10px; width: 100%; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .btn-delete { background: #fee2e2; color: #dc2626; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="admin-container">
+        <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2 style="margin:0;">ZYPSO ADMIN</h2>
+            <button onclick="window.location.href='index.html'" class="btn-secondary">View Shop</button>
+        </header>
+
+        <div class="card">
+            <h3>🛺 Recent Ride Requests</h3>
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User Email</th>
+                            <th>Driver Name</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ride-list-body">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>👨‍✈️ Add New Driver</h3>
+            <div class="grid-2">
+                <input type="text" id="d-name" placeholder="Driver Name">
+                <input type="tel" id="d-phone" placeholder="Phone (e.g. 9876543210)">
+            </div>
+            <input type="number" id="d-price" placeholder="Price per KG/KM (e.g. 15)">
+            <button onclick="addDriver()" class="btn-primary" style="width:100%;">Save Driver</button>
+            
+            <h4 style="margin-top:20px;">Current Drivers</h4>
+            <div id="admin-driver-list">
+                </div>
+        </div>
+
+        <div class="card">
+            <h3>Shop Control</h3>
+            <label>Delivery Charge:</label><input type="number" id="delivery-charge-input">
+            <label>Support Number:</label><input type="tel" id="support-number-input">
+            <label>Shop Status:</label>
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <input type="checkbox" id="shop-toggle" style="width:auto; margin:0;"> <span id="status-label">Open</span>
+            </div>
+            <button onclick="updateShopSettings()" class="btn-primary" style="width:100%;">Save Settings</button>
+        </div>
+
+        <div class="card">
+            <h3>Add Product</h3>
+            <input type="text" id="p-name" placeholder="Name">
+            <div class="grid-2">
+                <input type="number" id="p-price" placeholder="Price">
+                <select id="p-unit">
+                    <option value="kg">Per kg</option>
+                    <option value="gram">Per 500g</option>
+                    <option value="piece">Per Piece</option>
+                </select>
+            </div>
+            <input type="text" id="p-img" placeholder="Image URL">
+            <select id="p-category">
+                <option value="Vegetables">Vegetables</option>
+                <option value="Fruits">Fruits</option>
+            </select>
+            <button onclick="addProduct()" class="btn-primary" style="width:100%">Add Product</button>
+        </div>
+
+        <div class="card">
+            <h3>Manage Products</h3>
+            <div id="admin-product-list"></div>
+        </div>
+    </div>
+
+    <script type="module" src="admin.js"></script>
+</body>
+</html>

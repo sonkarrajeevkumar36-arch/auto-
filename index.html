@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Zypsomart</title>
+
+    <meta name="theme-color" content="#22c55e">
+    <link rel="manifest" href="/manifest.json">
+
+    <link rel="stylesheet" href="style.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div id="shop-closed-overlay" style="display:none; position:fixed; inset:0; background:white; z-index:9999; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px;">
+        <h2 style="color:var(--danger)">SHOP CLOSED</h2>
+        <p id="opening-time-text"></p>
+    </div>
+
+    <header class="app-header">
+        <div class="container">
+
+            <div class="logo-row">
+                <img src="/logo.png" alt="Logo" id="app-logo">
+                <div style="display:flex; gap:12px;">
+                    <button class="icon-btn" id="my-orders-btn" style="display:none;">📦</button>
+                    <button class="icon-btn" id="auth-btn">👤</button>
+                </div>
+            </div>
+
+            <div class="search-wrapper">
+                <input type="text" id="search-input" placeholder="Search vegetables, fruits...">
+                <span class="search-icon">🔍</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container" style="margin-top: 10px; margin-bottom: 10px;">
+            <button onclick="window.showAutoSection()" style="width:100%; padding:15px; background:var(--primary); color:white; border:none; border-radius:15px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow: var(--shadow);">
+                <span style="font-size:20px;">🛺</span> AUTO BOOK (CAB SERVICE)
+            </button>
+        </div>
+
+        <div class="container">
+            <div class="categories-scroll" id="category-list">
+                <div class="category-item active" onclick="filterCategory('all', this)">All</div>
+                </div>
+        </div>
+
+        <div class="container">
+            <div class="products-grid" id="product-list">
+                </div>
+        </div>
+    </main>
+
+    <div id="cart-bar" class="cart-bar">
+        <div class="container" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <span id="cart-count">0 Items</span> • 
+                <span id="cart-total" style="font-weight:bold;">₹0</span>
+            </div>
+            <button onclick="openCart()" class="view-cart-btn">View Cart 🛒</button>
+        </div>
+    </div>
+
+    <div id="auto-modal" class="modal">
+        <div class="modal-content" style="max-width: 450px; max-height: 80vh; overflow-y: auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="margin:0;">Available Drivers</h3>
+                <button onclick="document.getElementById('auto-modal').classList.remove('active')" style="border:none; background:none; font-size:24px; cursor:pointer;">&times;</button>
+            </div>
+            <div id="driver-list">
+                </div>
+        </div>
+    </div>
+
+    <div id="cart-modal" class="modal">
+        <div class="modal-content">
+            <h3>Your Cart</h3>
+            <div id="cart-items-list" style="margin-bottom:20px;"></div>
+            
+            <div style="border-top:2px dashed #eee; padding-top:15px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                    <span>Delivery Charge:</span>
+                    <span id="modal-delivery-charge">₹0</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-weight:800; font-size:18px; color:var(--dark);">
+                    <span>Total Amount:</span>
+                    <span id="modal-total-amount">₹0</span>
+                </div>
+            </div>
+
+            <button onclick="checkout()" class="btn-primary" style="width:100%; margin-top:20px; padding:15px;">Place Order Now</button>
+            <button onclick="document.getElementById('cart-modal').classList.remove('active')" class="close-btn">&times;</button>
+        </div>
+    </div>
+
+    <div id="orders-modal" class="modal">
+        <div class="modal-content" style="max-width:500px;">
+            <h3>My Orders</h3>
+            <div id="user-orders-list"></div>
+            <button id="close-orders" class="close-btn">&times;</button>
+        </div>
+    </div>
+
+    <div id="auth-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-title" style="margin-top:0;">Login</h2>
+            <form id="auth-form">
+                <input type="email" id="auth-email" placeholder="Email Address" required>
+                <input type="password" id="auth-password" placeholder="Password" required>
+                <button type="submit" id="auth-submit" class="btn-primary" style="width:100%;">Login</button>
+                <div style="text-align:center; margin-top:15px; display:flex; flex-direction:column; gap:10px;">
+                    <p id="switch-mode" style="cursor:pointer; color:var(--primary); font-size:13px;">New here? Register</p>
+                    <p onclick="openAdminPin()" style="cursor:pointer; color:#64748b; font-size:13px; font-weight:600;">🛠 Admin</p>
+                </div>
+            </form>
+            <button id="close-modal" class="close-btn">&times;</button>
+        </div>
+    </div>
+
+    <div id="admin-pin-modal" class="modal">
+        <div class="modal-content" style="max-width:300px; text-align:center;">
+            <h3>Admin Access</h3>
+            <p style="font-size:12px; color:#64748b; margin-bottom:15px;">Enter 4-digit security PIN</p>
+            <input type="password" id="admin-pin-input" maxlength="4" style="text-align:center; font-size:24px; letter-spacing:10px; padding:10px; border-radius:12px; border:2px solid #e2e8f0; width:80%;">
+            <button onclick="checkAdminPin()" class="btn-primary" style="width:100%; margin-top:15px;">Verify PIN</button>
+            <button onclick="closeAdminPin()" class="close-btn">&times;</button>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+
+    <script>
+        window.openAdminPin = () => {
+            document.getElementById('auth-modal').classList.remove('active');
+            document.getElementById('admin-pin-modal').classList.add('active');
+        };
+        window.closeAdminPin = () => {
+            document.getElementById('admin-pin-modal').classList.remove('active');
+        };
+        window.checkAdminPin = () => {
+            const pin = document.getElementById('admin-pin-input').value;
+            if (pin === "0000") window.location.href = "admin.html"; // Change PIN from here
+            else alert("Incorrect Admin PIN");
+        };
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker Registered'))
+                    .catch(err => console.log('SW Registration Failed', err));
+            });
+        }
+    </script>
+
+</body>
+</html>
