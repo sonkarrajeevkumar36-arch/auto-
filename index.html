@@ -2,165 +2,58 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-
-    <!-- Responsive -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Title -->
-    <title>Zypsomart</title>
-
-    <!-- PWA META -->
-    <meta name="theme-color" content="#22c55e">
-    <link rel="manifest" href="/manifest.json">
-
-    <!-- Styles -->
+    <title>Zypsomart | Fresh & Fast</title>
     <link rel="stylesheet" href="style.css">
-
-    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
-
 <body>
 
-    <!-- SHOP CLOSED OVERLAY -->
     <div id="shop-closed-overlay" style="display:none; position:fixed; inset:0; background:white; z-index:9999; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px;">
         <h2 style="color:var(--danger)">SHOP CLOSED</h2>
-        <p id="opening-time-text"></p>
+        <p>Hum jald hi wapas aayenge!</p>
     </div>
 
-    <!-- HEADER -->
     <header class="app-header">
         <div class="container">
-
-            <!-- LOGO + APP NAME -->
             <div class="logo-row">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <img src="logo.png" alt="Zypsomart Logo" id="app-logo">
-                    <span style="font-weight:800; font-size:20px; color:#0f172a;">
-                        Zypso Mart
-                    </span>
-                </div>
-
-                <div style="display:flex; gap:12px; align-items:center;">
-                    <a id="support-link" href="tel:8090315246" class="icon-btn" style="text-decoration:none;">📞</a>
-                    <button id="my-orders-btn" class="icon-btn" style="display:none;">📦</button>
-                    <div id="auth-btn" class="icon-btn">👤</div>
-                    <div id="cart-btn" class="icon-btn">
-                        🛒<span id="cart-count">0</span>
-                    </div>
+                <img src="logo.png" id="app-logo" onclick="location.reload()" style="cursor:pointer;">
+                <div style="display:flex; gap:10px;">
+                    <button class="icon-btn" id="contact-btn">📞</button>
+                    <button class="icon-btn" id="my-orders-btn" style="display:none">📦</button>
+                    <button class="icon-btn" id="auth-btn">👤</button>
                 </div>
             </div>
-
-            <!-- SEARCH -->
             <input type="text" id="product-search" placeholder="Search products...">
-
-            <!-- CATEGORIES -->
-            <div id="category-list" class="category-scroll"></div>
         </div>
     </header>
 
-    <!-- MAIN CONTENT -->
-    <main class="container">
+    <div class="container" style="margin-top:20px;">
+        <div id="category-list" class="category-scroll"></div>
         <div id="product-grid" class="product-grid"></div>
-    </main>
-
-    <!-- ADMIN PIN MODAL -->
-    <div id="admin-pin-modal" class="modal">
-        <div class="modal-content">
-            <h3>Admin Access</h3>
-            <input type="password" id="admin-pin-input" placeholder="Enter Admin PIN">
-            <button onclick="checkAdminPin()" class="btn-primary" style="width:100%;">Verify & Enter</button>
-            <button onclick="closeAdminPin()" class="close-btn">&times;</button>
-        </div>
     </div>
 
-    <!-- CART SIDEBAR -->
-    <div id="sidebar-overlay" class="sidebar-overlay">
-        <div class="container" style="padding-top:20px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h2 style="margin:0;">Your Cart</h2>
-                <button id="close-cart" class="icon-btn">✕</button>
-            </div>
-
-            <div id="cart-items"></div>
-
-            <div id="delivery-details" style="margin-top:30px; border-top:1px solid #eee; padding-top:20px;">
-                <h4>Delivery Details</h4>
-                <input type="text" id="cust-name" placeholder="Full Name" class="capsule-input">
-                <input type="tel" id="cust-phone" placeholder="Phone Number" class="capsule-input">
-                <textarea id="cust-address" placeholder="Delivery Address" class="capsule-input" style="border-radius:20px; min-height:80px;"></textarea>
-            </div>
-
-            <div class="cart-summary">
-                <div style="display:flex; justify-content:space-between; font-size:22px; font-weight:800; border-top:2px solid #eee; padding-top:15px; margin-top:10px;">
-                    <span>Total:</span>
-                    <span id="cart-total">₹0</span>
-                </div>
-                <button id="checkout-btn" class="btn-primary" style="margin-top:15px; width:100%; border-radius:50px; height:50px;">
-                    Confirm Order
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ORDERS MODAL -->
-    <div id="orders-modal" class="modal">
-        <div class="modal-content" style="max-width:500px; width:95%;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3>Order History</h3>
-                <button id="close-orders" class="close-btn">&times;</button>
-            </div>
-            <div id="user-orders-list" style="max-height:60vh; overflow-y:auto;"></div>
-        </div>
-    </div>
-
-    <!-- AUTH MODAL -->
     <div id="auth-modal" class="modal">
         <div class="modal-content">
             <h3 id="modal-title">Login</h3>
             <form id="auth-form">
-                <input type="email" id="auth-email" placeholder="Email" required class="capsule-input" style="border-radius:10px;">
-                <input type="password" id="auth-password" placeholder="Password" required class="capsule-input" style="border-radius:10px;">
-                <button type="submit" id="auth-submit" class="btn-primary" style="width:100%;">Continue</button>
-
-                <div style="display:flex; justify-content:space-between; margin-top:15px;">
-                    <p id="switch-mode" style="cursor:pointer; color:var(--primary); font-size:13px;">New here? Register</p>
-                    <p onclick="openAdminPin()" style="cursor:pointer; color:#64748b; font-size:13px; font-weight:600;">🛠 Admin</p>
-                </div>
+                <input type="email" id="auth-email" placeholder="Email" class="capsule-input" required>
+                <input type="password" id="auth-password" placeholder="Password" class="capsule-input" required>
+                <button type="submit" id="auth-submit" class="btn-primary" style="width:100%;">Submit</button>
+                <p id="switch-mode" style="text-align:center; cursor:pointer; color:var(--primary); margin-top:15px;">New? Register</p>
             </form>
-            <button id="close-modal" class="close-btn">&times;</button>
+            <button class="close-btn" id="close-auth">&times;</button>
         </div>
     </div>
 
-    <!-- MAIN APP SCRIPT -->
+    <div id="orders-modal" class="modal">
+        <div class="modal-content">
+            <h3>My Orders</h3>
+            <div id="user-orders-list"></div>
+            <button class="btn-secondary" id="close-orders" style="width:100%; margin-top:15px;">Close</button>
+        </div>
+    </div>
+
     <script type="module" src="app.js"></script>
-
-    <!-- ADMIN HELPERS -->
-    <script>
-        window.openAdminPin = () => {
-            document.getElementById('auth-modal').classList.remove('active');
-            document.getElementById('admin-pin-modal').classList.add('active');
-        };
-        window.closeAdminPin = () => {
-            document.getElementById('admin-pin-modal').classList.remove('active');
-        };
-        window.checkAdminPin = () => {
-            const pin = document.getElementById('admin-pin-input').value;
-            if (pin === "0000") window.location.href = "admin.html";
-            else alert("Incorrect Admin PIN");
-        };
-    </script>
-
-    <!-- ✅ SERVICE WORKER REGISTER (PWA KEY PART) -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('Service Worker Registered', reg))
-                    .catch(err => console.log('Service Worker Error', err));
-            });
-        }
-    </script>
-
 </body>
 </html>
