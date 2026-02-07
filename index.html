@@ -27,7 +27,7 @@
                 </div>
             </div>
             
-            <input type="text" id="product-search" placeholder="Search fresh products...">
+            <input type="text" id="product-search" placeholder="Search products...">
 
             <div id="banner-container" style="display:none; margin-top:15px;">
                 <img id="promo-banner" src="" style="width:100%; border-radius:15px; box-shadow: var(--shadow); display:block;">
@@ -48,24 +48,20 @@
         <div id="cart-items"></div>
         
         <div id="delivery-details" style="margin-top:25px; border-top:1px solid #eee; padding-top:20px;">
-            <h4 style="margin-bottom:15px;">Delivery Details</h4>
-            <input type="text" id="cust-name" placeholder="Your Full Name" class="capsule-input">
+            <input type="text" id="cust-name" placeholder="Full Name" class="capsule-input">
             <input type="tel" id="cust-phone" placeholder="WhatsApp Number" class="capsule-input">
-            
-            <label style="font-size:12px; margin: 5px 0 5px 10px; display:block; color:#64748b; font-weight:600;">Select Village / Area:</label>
             <select id="cust-village" class="capsule-input" onchange="updateCartUI()">
-                <option value="">-- Choose Location --</option>
+                <option value="">Select Village</option>
             </select>
-
-            <textarea id="cust-address" placeholder="House No. / Landmark / Street Name" class="capsule-input" style="border-radius:20px; min-height:80px;"></textarea>
+            <textarea id="cust-address" placeholder="Address Detail" class="capsule-input"></textarea>
         </div>
 
         <div style="margin-top:20px; border-top:2px solid #f1f5f9; padding-top:20px;">
             <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-                <span style="font-weight:600; color:#64748b;">Grand Total:</span>
+                <span>Total:</span>
                 <h3 id="cart-total" style="margin:0; color:var(--primary);">₹0</h3>
             </div>
-            <button id="checkout-btn" class="btn-primary" style="width:100%; padding:16px; font-size:16px;">Place Order on WhatsApp</button>
+            <button id="checkout-btn" class="btn-primary" style="width:100%;">Order on WhatsApp</button>
         </div>
     </div>
 
@@ -75,15 +71,13 @@
 
     <div id="auth-modal" class="modal">
         <div class="modal-content">
-            <h3 id="modal-title" style="margin-top:0;">Login</h3>
+            <h3 id="modal-title">Login</h3>
             <form id="auth-form">
-                <input type="email" id="auth-email" placeholder="Email Address" class="capsule-input" required>
+                <input type="email" id="auth-email" placeholder="Email" class="capsule-input" required>
                 <input type="password" id="auth-password" placeholder="Password" class="capsule-input" required>
-                <button type="submit" id="auth-submit" class="btn-primary" style="width:100%; margin-top:10px;">Login</button>
-                <div style="text-align:center; margin-top:15px;">
-                    <p id="switch-mode" style="cursor:pointer; color:var(--primary); font-size:14px; font-weight:600;">New here? Create Account</p>
-                    <p onclick="openAdminPin()" style="cursor:pointer; color:#94a3b8; font-size:12px; margin-top:10px;">🛠 Admin Login</p>
-                </div>
+                <button type="submit" id="auth-submit" class="btn-primary" style="width:100%;">Submit</button>
+                <p id="switch-mode" style="text-align:center; cursor:pointer; color:var(--primary); margin-top:15px;">New? Register</p>
+                <p onclick="openAdminPin()" style="text-align:center; cursor:pointer; color:#94a3b8; font-size:12px;">🛠 Admin</p>
             </form>
             <button id="close-auth" class="close-btn">&times;</button>
         </div>
@@ -91,18 +85,9 @@
 
     <div id="orders-modal" class="modal">
         <div class="modal-content" style="max-width:500px; max-height:80vh; overflow-y:auto;">
-            <h3 style="margin-top:0;">My Orders</h3>
+            <h3>My Orders</h3>
             <div id="user-orders-list"></div>
             <button id="close-orders" class="btn-secondary" style="width:100%; margin-top:15px;">Close</button>
-        </div>
-    </div>
-
-    <div id="admin-pin-modal" class="modal">
-        <div class="modal-content">
-            <h3>Admin Access</h3>
-            <input type="password" id="admin-pin-input" placeholder="Enter Admin PIN" class="capsule-input">
-            <button onclick="checkAdminPin()" class="btn-primary" style="width:100%">Verify & Enter</button>
-            <button onclick="document.getElementById('admin-pin-modal').classList.remove('active')" class="btn-secondary" style="width:100%; margin-top:10px;">Cancel</button>
         </div>
     </div>
 
@@ -110,12 +95,7 @@
     <script>
         window.openAdminPin = () => {
             document.getElementById('auth-modal').classList.remove('active');
-            document.getElementById('admin-pin-modal').classList.add('active');
-        };
-        window.checkAdminPin = () => {
-            const pin = document.getElementById('admin-pin-input').value;
-            if(pin === "0000") window.location.href="admin.html";
-            else alert("Ghalat PIN!");
+            window.location.href = "admin.html"; // Ya jo bhi aapka admin logic hai
         };
     </script>
 </body>
