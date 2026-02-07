@@ -12,52 +12,98 @@
         th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; font-size: 12px; }
         .stat-box { background: var(--primary); color: white; padding: 15px; border-radius: 12px; text-align: center; }
         input, select { padding: 8px; margin-bottom: 10px; width: 100%; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn-delete { background: #fee2e2; color: #dc2626; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; }
+        .village-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; font-size: 13px; }
+        @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
     </style>
 </head>
-<body>
-
+<body onload="initAdmin()">
     <div class="admin-container">
-        <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h2 style="margin:0;">ZYPSO ADMIN</h2>
-            <button onclick="window.location.href='index.html'" class="btn-secondary">View Shop</button>
-        </header>
+        <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+            <h2 style="margin:0;">Admin Dashboard</h2>
+            <a href="index.html" style="color:var(--danger); text-decoration:none; font-weight:bold;">Exit Admin</a>
+        </div>
+
+        <div class="grid-2" style="margin-bottom:20px;">
+            <div class="stat-box"><h3>Total Revenue</h3><h2 id="total-rev-val">₹0</h2><small>(Delivered Only)</small></div>
+            <div class="stat-box" style="background:var(--dark)"><h3>Products Sold</h3><h2 id="total-sold-val">0</h2></div>
+        </div>
+
+        <div class="grid-2">
+            <div class="card">
+                <h3>Festival Banner & Offer</h3>
+                <label>Banner Image URL:</label>
+                <input type="text" id="banner-url-input" placeholder="https://example.com/image.jpg">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                    <input type="checkbox" id="banner-active" style="width:auto; margin:0;"> <span>Show Banner to Users</span>
+                </div>
+                <button onclick="updateBannerSettings()" class="btn-primary" style="width:100%">Update Banner</button>
+            </div>
+
+            <div class="card">
+                <h3>Village & Delivery Charges</h3>
+                <input type="text" id="village-name-input" placeholder="Village Name">
+                <input type="number" id="village-charge-input" placeholder="Delivery Charge (₹)">
+                <button onclick="addVillage()" class="btn-primary" style="width:100%">Add Village</button>
+                <div id="admin-village-list" style="margin-top:15px; max-height:150px; overflow-y:auto; border-top:1px solid #eee;">
+                    </div>
+            </div>
+        </div>
 
         <div class="card">
-            <h3>🛺 Recent Ride Requests</h3>
+            <h3>Date Range Filter</h3>
+            <div style="display:flex; gap:10px;">
+                <input type="date" id="filter-start">
+                <input type="date" id="filter-end">
+                <button onclick="applyFilters()" class="btn-primary" style="white-space:nowrap;">Filter Revenue</button>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="card">
+                <h3>Add New Product</h3>
+                <input type="text" id="p-name" placeholder="Product Name">
+                <input type="number" id="p-price" placeholder="Price (₹)">
+                <select id="p-unit">
+                    <option value="piece">per Piece</option>
+                    <option value="kg">per kg</option>
+                    <option value="gram">per gram</option>
+                    <option value="bunch">per bunch</option>
+                </select>
+                <input type="text" id="p-img" placeholder="Image URL">
+                <select id="p-category"></select>
+                <button onclick="addProduct()" class="btn-primary" style="width:100%">Add Product</button>
+            </div>
+            <div class="card">
+                <h3>Category Management</h3>
+                <input type="text" id="new-cat-name" placeholder="Category Name">
+                <button onclick="addCategory()" class="btn-primary" style="width:100%">Add Category</button>
+                <div id="admin-cat-list" style="margin-top:10px; display:flex; flex-wrap:wrap; gap:5px;"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Recent Orders</h3>
             <div style="overflow-x:auto;">
                 <table>
-                    <thead>
-                        <tr>
-                            <th>User Email</th>
-                            <th>Driver Name</th>
-                            <th>Time</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ride-list-body">
-                        </tbody>
+                    <thead><tr><th>Date</th><th>Customer</th><th>Total</th><th>Status</th><th>Action</th></tr></thead>
+                    <tbody id="admin-orders"></tbody>
                 </table>
             </div>
         </div>
 
         <div class="card">
-            <h3>👨‍✈️ Add New Driver</h3>
-            <div class="grid-2">
-                <input type="text" id="d-name" placeholder="Driver Name">
-                <input type="tel" id="d-phone" placeholder="Phone (e.g. 9876543210)">
+            <h3>Product Inventory</h3>
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead><tr><th>Item</th><th>Status</th><th>Price/Unit</th><th>Action</th></tr></thead>
+                    <tbody id="admin-inventory"></tbody>
+                </table>
             </div>
-            <input type="number" id="d-price" placeholder="Price per KG/KM (e.g. 15)">
-            <button onclick="addDriver()" class="btn-primary" style="width:100%;">Save Driver</button>
-            
-            <h4 style="margin-top:20px;">Current Drivers</h4>
-            <div id="admin-driver-list">
-                </div>
         </div>
 
         <div class="card">
-            <h3>Shop Control</h3>
-            <label>Delivery Charge:</label><input type="number" id="delivery-charge-input">
+            <h3>Global Settings</h3>
+            <label>Default Delivery Charge (₹):</label><input type="number" id="delivery-charge-input">
             <label>Support Number:</label><input type="tel" id="support-number-input">
             <label>Shop Status:</label>
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
@@ -65,29 +111,23 @@
             </div>
             <button onclick="updateShopSettings()" class="btn-primary" style="width:100%;">Save Settings</button>
         </div>
+    </div>
 
-        <div class="card">
-            <h3>Add Product</h3>
-            <input type="text" id="p-name" placeholder="Name">
-            <div class="grid-2">
-                <input type="number" id="p-price" placeholder="Price">
-                <select id="p-unit">
-                    <option value="kg">Per kg</option>
-                    <option value="gram">Per 500g</option>
-                    <option value="piece">Per Piece</option>
-                </select>
-            </div>
-            <input type="text" id="p-img" placeholder="Image URL">
-            <select id="p-category">
-                <option value="Vegetables">Vegetables</option>
-                <option value="Fruits">Fruits</option>
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <h3>Edit Product</h3>
+            <input type="hidden" id="edit-id">
+            <input type="text" id="edit-name" placeholder="Name">
+            <input type="number" id="edit-price" placeholder="Price">
+            <select id="edit-unit">
+                <option value="piece">Piece</option>
+                <option value="kg">kg</option>
+                <option value="gram">gram</option>
+                <option value="bunch">bunch</option>
             </select>
-            <button onclick="addProduct()" class="btn-primary" style="width:100%">Add Product</button>
-        </div>
-
-        <div class="card">
-            <h3>Manage Products</h3>
-            <div id="admin-product-list"></div>
+            <input type="text" id="edit-img" placeholder="Image URL">
+            <button onclick="saveEdit()" class="btn-primary" style="width:100%">Save Changes</button>
+            <button onclick="document.getElementById('edit-modal').classList.remove('active')" class="btn-secondary" style="width:100%; margin-top:5px;">Cancel</button>
         </div>
     </div>
 

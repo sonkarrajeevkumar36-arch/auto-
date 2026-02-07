@@ -5,7 +5,7 @@ let allOrders = [];
 let allProducts = [];
 
 window.initAdmin = () => {
-    // 1. Shop Settings Listener (Existing)
+    // 1. Shop Settings Listener
     onSnapshot(doc(db, "shopControl", "status"), (docSnap) => {
         if(docSnap.exists()) {
             const d = docSnap.data();
@@ -16,82 +16,154 @@ window.initAdmin = () => {
         }
     });
 
-    // 2. Orders Listener (Existing)
+    // 2. Banner Settings Listener
+    onSnapshot(doc(db, "shopControl", "banner"), (docSnap) => {
+        if(docSnap.exists()){
+            const b = docSnap.data();
+            document.getElementById('banner-url-input').value = b.url || "";
+            document.getElementById('banner-active').checked = b.active || false;
+        }
+    });
+
+    // 3. Villages Listener
+    onSnapshot(collection(db, "villages"), (snap) => {
+        const villages = snap.docs.map(d => ({id: d.id, ...d.data()}));
+        document.getElementById('admin-village-list').innerHTML = villages.map(v => `
+            <div class="village-item">
+                <span><b>${v.name}</b> (₹${v.charge})</span>
+                <button onclick="deleteVillage('${v.id}')" style="color:red; border:none; background:none; cursor:pointer;">Delete</button>
+            </div>`).join('');
+    });
+
+    // 4. Orders Real-time Listener
     onSnapshot(query(collection(db, "orders"), orderBy("createdAt", "desc")), (snap) => {
         allOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         renderOrders();
     });
 
-    // 3. Products Listener (Existing)
+    // 5. Products Real-time Listener
     onSnapshot(collection(db, "products"), (snap) => {
         allProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        renderAdminProducts();
+        document.getElementById('admin-inventory').innerHTML = allProducts.map(p => `
+            <tr>
+                <td>${p.name}</td>
+                <td>
+                    <select onchange="updateStock('${p.id}', this.value)">
+                        <option value="Available" ${p.status==='Available'?'selected':''}>Available</option>
+                        <option value="Unavailable" ${p.status==='Unavailable'?'selected':''}>Unavailable</option>
+                    </select>
+                </td>
+                <td>₹${p.price}/${p.unit}</td>
+                <td>
+                    <button onclick="editProduct('${p.id}')">Edit</button> 
+                    <button onclick="deleteProduct('${p.id}')" style="color:red">Del</button>
+                </td>
+            </tr>`).join('');
     });
 
-    // ✅ 4. Ride Bookings Listener (NEW)
-    onSnapshot(query(collection(db, "rideBookings"), orderBy("timestamp", "desc")), (snap) => {
-        const rideBody = document.getElementById('ride-list-body');
-        rideBody.innerHTML = "";
-        snap.forEach(doc => {
-            const r = doc.data();
-            const time = r.timestamp ? r.timestamp.toDate().toLocaleString() : 'Just now';
-            rideBody.innerHTML += `
-                <tr>
-                    <td>${r.userEmail}</td>
-                    <td>${r.driverName}</td>
-                    <td>${time}</td>
-                    <td><span style="background:#fef08a; padding:4px 8px; border-radius:4px;">${r.status}</span></td>
-                </tr>
-            `;
-        });
-    });
-
-    // ✅ 5. Drivers Listener (NEW)
-    onSnapshot(collection(db, "drivers"), (snap) => {
-        const driverContainer = document.getElementById('admin-driver-list');
-        driverContainer.innerHTML = "";
-        snap.forEach(docSnap => {
-            const d = docSnap.data();
-            driverContainer.innerHTML += `
-                <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:10px; margin-top:5px; border-radius:8px; border:1px solid #e2e8f0;">
-                    <div>
-                        <strong>${d.name}</strong> - ₹${d.price} <br>
-                        <small>${d.phone}</small>
-                    </div>
-                    <button onclick="deleteDriver('${docSnap.id}')" class="btn-delete">🗑️</button>
-                </div>
-            `;
-        });
+    // 6. Categories Real-time Listener
+    onSnapshot(collection(db, "categories"), (snap) => {
+        const cats = snap.docs.map(d => ({id: d.id, ...d.data()}));
+        document.getElementById('p-category').innerHTML = cats.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+        document.getElementById('admin-cat-list').innerHTML = cats.map(c => `
+            <span class="category-chip" style="background:#e2e8f0; border:none; display:flex; align-items:center; gap:8px; padding: 5px 10px; border-radius: 20px; font-size: 12px;">
+                ${c.name} <b onclick="deleteCategory('${c.id}')" style="cursor:pointer; color:red">×</b>
+            </span>`).join('');
     });
 };
 
-// ✅ NEW: Add Driver Function
-window.addDriver = async () => {
-    const name = document.getElementById('d-name').value;
-    const phone = document.getElementById('d-phone').value;
-    const price = document.getElementById('d-price').value;
+// --- NEW FUNCTIONS ---
+window.updateBannerSettings = async () => {
+    await setDoc(doc(db, "shopControl", "banner"), {
+        url: document.getElementById('banner-url-input').value,
+        active: document.getElementById('banner-active').checked
+    });
+    alert("Banner Settings Updated!");
+};
 
-    if(name && phone && price) {
-        await addDoc(collection(db, "drivers"), {
-            name, phone, price, createdAt: serverTimestamp()
-        });
-        alert("Driver Added!");
-        document.getElementById('d-name').value = '';
-        document.getElementById('d-phone').value = '';
-        document.getElementById('d-price').value = '';
+window.addVillage = async () => {
+    const name = document.getElementById('village-name-input').value;
+    const charge = parseInt(document.getElementById('village-charge-input').value);
+    if(name && !isNaN(charge)) {
+        await addDoc(collection(db, "villages"), { name, charge });
+        document.getElementById('village-name-input').value = '';
+        document.getElementById('village-charge-input').value = '';
     } else {
-        alert("Please fill all details");
+        alert("Please enter village name and delivery charge");
     }
 };
 
-// ✅ NEW: Delete Driver Function
-window.deleteDriver = async (id) => {
-    if(confirm("Remove this driver?")) {
-        await deleteDoc(doc(db, "drivers", id));
-    }
+window.deleteVillage = async (id) => {
+    if(confirm("Delete this village?")) await deleteDoc(doc(db, "villages", id));
+};
+// ----------------------
+
+function renderOrders() {
+    const start = document.getElementById('filter-start').value;
+    const end = document.getElementById('filter-end').value;
+    let rev = 0, sold = 0;
+    
+    document.getElementById('admin-orders').innerHTML = allOrders.filter(o => {
+        if(!o.createdAt) return true;
+        const d = o.createdAt.toDate();
+        if(start && d < new Date(start)) return false;
+        if(end && d > new Date(end + 'T23:59:59')) return false;
+        return true;
+    }).map(o => {
+        if(o.status === 'delivered') {
+            rev += o.total || 0;
+            (o.items || []).forEach(i => sold += i.qty || 0);
+        }
+        let dateStr = o.createdAt ? o.createdAt.toDate().toLocaleDateString() : "N/A";
+        let timeStr = o.createdAt ? o.createdAt.toDate().toLocaleTimeString() : "N/A";
+
+        return `
+            <tr>
+                <td>${dateStr}<br><small>${timeStr}</small></td>
+                <td>
+                    <b>${o.customerName || "Unknown"}</b><br>
+                    <small>${o.customerPhone || ""}</small><br>
+                    <small>${o.customerAddress || ""}</small>
+                </td>
+                <td>₹${o.total || 0}</td>
+                <td><span class="status-tag status-${o.status}">${o.status}</span></td>
+                <td>
+                    <select onchange="upStatus('${o.id}', this.value)" style="width:110px; font-size:10px;">
+                        <option value="pending" ${o.status==='pending'?'selected':''}>Pending</option>
+                        <option value="delivered" ${o.status==='delivered'?'selected':''}>Delivered</option>
+                        <option value="cancelled" ${o.status==='cancelled'?'selected':''}>Cancelled</option>
+                    </select>
+                </td>
+            </tr>`;
+    }).join('');
+
+    document.getElementById('total-rev-val').innerText = '₹' + rev;
+    document.getElementById('total-sold-val').innerText = sold;
+}
+
+window.applyFilters = () => renderOrders();
+window.upStatus = async (id, s) => await updateDoc(doc(db, "orders", id), { status: s });
+window.updateStock = async (id, s) => await updateDoc(doc(db, "products", id), { status: s });
+
+window.editProduct = (id) => {
+    const p = allProducts.find(x => x.id === id);
+    document.getElementById('edit-id').value = id;
+    document.getElementById('edit-name').value = p.name;
+    document.getElementById('edit-price').value = p.price;
+    document.getElementById('edit-unit').value = p.unit || 'piece';
+    document.getElementById('edit-img').value = p.imageUrl || '';
+    document.getElementById('edit-modal').classList.add('active');
 };
 
-// --- EXISTING FUNCTIONS ---
+window.saveEdit = async () => {
+    await updateDoc(doc(db, "products", document.getElementById('edit-id').value), {
+        name: document.getElementById('edit-name').value, 
+        price: parseInt(document.getElementById('edit-price').value),
+        unit: document.getElementById('edit-unit').value, 
+        imageUrl: document.getElementById('edit-img').value
+    });
+    document.getElementById('edit-modal').classList.remove('active');
+};
 
 window.updateShopSettings = async () => {
     await setDoc(doc(db, "shopControl", "status"), {
@@ -118,22 +190,10 @@ window.addProduct = async () => {
     }
 };
 
-function renderAdminProducts() {
-    const list = document.getElementById('admin-product-list');
-    list.innerHTML = "";
-    allProducts.forEach(p => {
-        list.innerHTML += `
-            <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;">
-                <span>${p.name} (₹${p.price})</span>
-                <button onclick="deleteProduct('${p.id}')" class="btn-delete">Delete</button>
-            </div>
-        `;
-    });
-}
-
-window.deleteProduct = async (id) => { 
-    if(confirm("Delete Product?")) await deleteDoc(doc(db, "products", id)); 
+window.addCategory = async () => {
+    const n = document.getElementById('new-cat-name').value;
+    if(n) await addDoc(collection(db, "categories"), { name: n });
 };
 
-// Start Admin
-window.initAdmin();
+window.deleteProduct = async (id) => { if(confirm("Delete Product?")) await deleteDoc(doc(db, "products", id)); };
+window.deleteCategory = async (id) => { if(confirm("Delete Category?")) await deleteDoc(doc(db, "categories", id)); };
