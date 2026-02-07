@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zypsomart | Fresh & Fast</title>
+    <title>Zypsomart</title>
+    <meta name="theme-color" content="#22c55e">
+    <link rel="manifest" href="/manifest.json">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -11,20 +13,24 @@
 
     <div id="shop-closed-overlay" style="display:none; position:fixed; inset:0; background:white; z-index:9999; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px;">
         <h2 style="color:var(--danger)">SHOP CLOSED</h2>
-        <p>Hum jald hi wapas aayenge!</p>
+        <p id="opening-time-text"></p>
     </div>
 
     <header class="app-header">
         <div class="container">
             <div class="logo-row">
-                <img src="logo.png" id="app-logo" onclick="location.reload()" style="cursor:pointer;">
+                <img src="logo.png" id="app-logo">
                 <div style="display:flex; gap:10px;">
-                    <button class="icon-btn" id="contact-btn">📞</button>
                     <button class="icon-btn" id="my-orders-btn" style="display:none">📦</button>
                     <button class="icon-btn" id="auth-btn">👤</button>
                 </div>
             </div>
+            
             <input type="text" id="product-search" placeholder="Search products...">
+
+            <div id="banner-container" style="display:none; margin-top:15px;">
+                <img id="promo-banner" src="" style="width:100%; border-radius:15px; box-shadow: var(--shadow); display:block;">
+            </div>
         </div>
     </header>
 
@@ -33,27 +39,47 @@
         <div id="product-grid" class="product-grid"></div>
     </div>
 
-    <div id="auth-modal" class="modal">
-        <div class="modal-content">
-            <h3 id="modal-title">Login</h3>
-            <form id="auth-form">
-                <input type="email" id="auth-email" placeholder="Email" class="capsule-input" required>
-                <input type="password" id="auth-password" placeholder="Password" class="capsule-input" required>
-                <button type="submit" id="auth-submit" class="btn-primary" style="width:100%;">Submit</button>
-                <p id="switch-mode" style="text-align:center; cursor:pointer; color:var(--primary); margin-top:15px;">New? Register</p>
-            </form>
-            <button class="close-btn" id="close-auth">&times;</button>
+    <div id="cart-sidebar" class="cart-sidebar">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3>My Cart</h3>
+            <button onclick="toggleCart()" class="close-btn" style="position:static;">&times;</button>
+        </div>
+        <div id="cart-items"></div>
+        
+        <div id="delivery-details" style="margin-top:30px; border-top:1px solid #eee; padding-top:20px;">
+            <h4>Delivery Details</h4>
+            <input type="text" id="cust-name" placeholder="Full Name" class="capsule-input">
+            <input type="tel" id="cust-phone" placeholder="Phone Number" class="capsule-input">
+            
+            <label style="font-size:12px; margin-left:10px; color:#64748b;">Select Village:</label>
+            <select id="cust-village" class="capsule-input" onchange="updateCartUI()">
+                <option value="">Choose Village</option>
+            </select>
+
+            <textarea id="cust-address" placeholder="House No / Landmark / Street" class="capsule-input" style="border-radius:20px; min-height:80px;"></textarea>
+        </div>
+
+        <div style="margin-top:20px; border-top:1px solid #eee; padding-top:20px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <span>Total Amount:</span>
+                <h3 id="cart-total" style="margin:0;">₹0</h3>
+            </div>
+            <button id="checkout-btn" class="btn-primary" style="width:100%;">Order on WhatsApp</button>
         </div>
     </div>
 
-    <div id="orders-modal" class="modal">
-        <div class="modal-content">
-            <h3>My Orders</h3>
-            <div id="user-orders-list"></div>
-            <button class="btn-secondary" id="close-orders" style="width:100%; margin-top:15px;">Close</button>
-        </div>
+    <div class="cart-fab" onclick="toggleCart()">
+        🛒 <span id="cart-count">0</span>
     </div>
 
     <script type="module" src="app.js"></script>
+    <script>
+        // Admin Pin logic (Keep your original)
+        window.openAdminPin = () => { document.getElementById('admin-pin-modal').classList.add('active'); };
+        window.checkAdminPin = () => {
+            if(document.getElementById('admin-pin-input').value === "0000") window.location.href="admin.html";
+            else alert("Wrong PIN");
+        };
+    </script>
 </body>
 </html>
